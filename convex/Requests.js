@@ -41,8 +41,6 @@ export const getByHospital = query({
   },
 });
 
-
-
 export const updateRequestStatus = mutation({
   args: {
     requestId: v.id("requests"),

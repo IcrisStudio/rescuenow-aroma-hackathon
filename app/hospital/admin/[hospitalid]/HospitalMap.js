@@ -19,7 +19,7 @@ export default function HospitalMap({ markerPosition, isReadOnly = false }) {
     <MapContainer
       center={markerPosition}
       zoom={15}
-      style={{ width: "100%", height: "100%" }}
+      style={{ width: "100%", height: "100%", zIndex: 0 }}
       scrollWheelZoom={!isReadOnly}
       dragging={!isReadOnly}
       doubleClickZoom={!isReadOnly}

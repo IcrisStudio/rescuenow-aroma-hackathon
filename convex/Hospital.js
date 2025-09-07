@@ -30,6 +30,35 @@ export const registerHospital = mutation({
   },
 });
 
+
+export const loginHospital = mutation({
+  args: {
+    name: v.string(),
+    password: v.string(),
+  },
+  handler: async (ctx, { name, password }) => {
+    const hospitals = await ctx.db
+      .query("hospitals")
+      .filter((q) => q.eq(q.field("name"), name))
+      .collect();
+
+    if (hospitals.length === 0) {
+      throw new Error("Hospital not found");
+    }
+
+    const hospital = hospitals[0];
+
+    const isValid = hospital.password === password; 
+
+    if (!isValid) {
+      throw new Error("Invalid password");
+    }
+
+    return { hospitalId: hospital._id, name: hospital.name };
+  },
+});
+
+
 export const getHospitalById = query({
   args: { hospitalId: v.id("hospitals") },
   handler: async (ctx, { hospitalId }) => {
