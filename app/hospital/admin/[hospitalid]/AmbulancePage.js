@@ -12,7 +12,7 @@ import { Input } from "../../../../components/ui/input";
 
 export default function AddAmbulance({ hospitalId }) {
   const createAmbulance = useMutation(api.Ambulance.createAmbulance);
-  const ambulances = useQuery(api.Ambulance.getByHospital, { hospital_id: hospitalId }) || [];
+  const ambulances = useQuery(api.Ambulance.getAmbulancesByHospital, { hospital_id: hospitalId }) || [];
 
   const [driverName, setDriverName] = useState("");
   const [driverContact, setDriverContact] = useState("");

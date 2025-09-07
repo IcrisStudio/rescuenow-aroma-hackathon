@@ -41,6 +41,8 @@ export const getByHospital = query({
   },
 });
 
+
+
 export const updateRequestStatus = mutation({
   args: {
     requestId: v.id("requests"),
@@ -57,6 +59,8 @@ export const updateRequestStatus = mutation({
 
     if (status === "Completed" || status === "Rejected") {
       await ctx.db.patch(req.ambulance_id, { status: "Free" });
+    } else if (status === "Accepted") {
+      await ctx.db.patch(req.ambulance_id, { status: "Busy" });
     }
 
     await ctx.db.patch(requestId, { 
@@ -64,5 +68,14 @@ export const updateRequestStatus = mutation({
       completed_at: status === "Completed" ? Date.now() : undefined 
     });
     return true;
+  },
+});
+
+export const getHospitalRequests = query({
+  args: { hospital_id: v.id("hospitals") },
+  handler: async (ctx, { hospital_id }) => {
+    return await ctx.db.query("requests")
+      .withIndex("by_hospital_status", (q) => q.eq("hospital_id", hospital_id))
+      .collect();
   },
 });

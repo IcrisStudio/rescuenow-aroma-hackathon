@@ -19,6 +19,7 @@ const HospitalAdmin = () => {
   const [isAdmin, setIsAdmin] = useState(false);
 
   const hospitalData = useQuery(api.Hospital.getHospitalById, { hospitalId });
+  const requests = useQuery(api.Requests.getHospitalRequests, { hospital_id: hospitalId });
 
   useEffect(() => {
     const token = localStorage.getItem("hospitalAdminSessionToken");
@@ -31,7 +32,7 @@ const HospitalAdmin = () => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-white">
+      <div className="flex justify-center items-center min-h-screen bg-gray-50">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
@@ -44,7 +45,7 @@ const HospitalAdmin = () => {
 
   if (!isAdmin) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-white">
+      <div className="flex justify-center items-center min-h-screen bg-gray-50">
         <p className="text-gray-700 text-lg">You are not logged in as admin.</p>
       </div>
     );
@@ -52,33 +53,65 @@ const HospitalAdmin = () => {
 
   if (!hospitalData) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-white">
+      <div className="flex justify-center items-center min-h-screen bg-gray-50">
         <p className="text-gray-700 text-lg">Loading hospital details...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white p-6 space-y-6">
-      <h1 className="text-3xl font-semibold text-gray-900 mb-4">{hospitalData.name} Admin Panel</h1>
-      <p className="text-gray-700 mb-4">
-        Contact: {hospitalData.contact_number} <br />
-        Total Ambulances: {hospitalData.total_ambulances} <br />
-        Created At: {new Date(hospitalData.created_at).toLocaleString()}
-      </p>
+    <div className="min-h-screen bg-gray-50 p-6 font-sans">
+      <h1 className="text-4xl font-bold text-gray-900 mb-6">{hospitalData.name} Admin Panel</h1>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Hospital Info Card */}
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Hospital Info</h2>
+          <p className="text-gray-700">Contact: {hospitalData.contact_number}</p>
+          <p className="text-gray-700">Total Ambulances: {hospitalData.total_ambulances}</p>
+          <p className="text-gray-700">Created At: {new Date(hospitalData.created_at).toLocaleString()}</p>
+        </div>
 
-      <div className="h-96 w-full rounded-md overflow-hidden border border-black/20">
-        <HospitalMap
-          markerPosition={{
-            lat: hospitalData.location_lat,
-            lng: hospitalData.location_lng,
-          }}
-          isReadOnly={true}
-        />
+        {/* Map Card */}
+        <div className="bg-white rounded-xl shadow-lg p-6 col-span-2">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Location</h2>
+          <div className="h-64 w-full rounded-md overflow-hidden border border-gray-200">
+            <HospitalMap
+              markerPosition={{
+                lat: hospitalData.location_lat,
+                lng: hospitalData.location_lng,
+              }}
+              isReadOnly={true}
+            />
+          </div>
+        </div>
+
+        {/* Requests Status Card */}
+        <div className="bg-white rounded-xl shadow-lg p-6 col-span-1">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Request Status</h2>
+          {requests ? (
+            <div className="space-y-2">
+              {requests.map((req) => (
+                <div key={req._id} className="p-2 bg-gray-50 rounded-md">
+                  <p className="text-gray-700">Status: {req.status}</p>
+                  <p className="text-gray-700">User Location: ({req.user_lat}, {req.user_lng})</p>
+                  {req.ambulance_lat && req.ambulance_lng && (
+                    <p className="text-gray-700">Ambulance Location: ({req.ambulance_lat}, {req.ambulance_lng})</p>
+                  )}
+                  <p className="text-gray-700">Created At: {new Date(req.created_at).toLocaleString()}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-700">No requests found.</p>
+          )}
+        </div>
+
+        {/* Add Ambulance Card */}
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Manage Ambulances</h2>
+          <AddAmbulance hospitalId={hospitalId} />
+        </div>
       </div>
-
-      {/* Add Ambulance Component */}
-      <AddAmbulance hospitalId={hospitalId} />
     </div>
   );
 };
