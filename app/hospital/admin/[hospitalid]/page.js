@@ -38,7 +38,7 @@ export default function Page() {
   // Render components based on state
   return (
     <div className="min-h-screen bg-white p-6">
-      {isAdmin ? <HospitalAdmin /> : "No adin"}
+      {isAdmin ? <HospitalAdmin/> : "Sorry You Dont Have Access To This Page"}
     </div>
   );
 }
